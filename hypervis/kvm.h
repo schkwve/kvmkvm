@@ -27,6 +27,7 @@ struct kvm {
 	struct kvm_regs regs;
 	struct kvm_sregs sregs;
 
+	size_t vcpu_mmap_size;
 	struct kvm_run *kvm_run;
 
 	uint8_t is_running;

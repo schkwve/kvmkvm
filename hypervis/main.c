@@ -44,8 +44,6 @@ int main(int argc, char *argv[])
 			case KVM_EXIT_IO:
 				if (!check_iopl()) {
 					kvmkvm_log(LOG_EXIT, "KVM_EXIT_SHUTDOWN\n");
-					kvm.is_running = 0;
-					break;
 				}
 				if (kvm.kvm_run->io.port & HP_NR_MARK) {
 					switch (kvm.kvm_run->io.port) {
@@ -125,6 +123,10 @@ void cleanup(void)
 	if (kvm.fd != -1) {
 		close(kvm.fd);
 	}
+
+	// unmap memory
+	munmap(kvm.kvm_run, kvm.vcpu_mmap_size);
+	munmap(kvm.mem, kvm.memsz);
 }
 
 void die(const char *msg)
