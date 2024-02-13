@@ -38,6 +38,11 @@ int main(void)
 				kvm.is_running = 0;
 				break;
 			case KVM_EXIT_IO:
+				if (!check_iopl()) {
+					kvmkvm_log(LOG_EXIT, "KVM_EXIT_SHUTDOWN\n");
+					kvm.is_running = 0;
+					break;
+				}
 				if (kvm.kvm_run->io.port & HP_NR_MARK) {
 					switch (kvm.kvm_run->io.port) {
 						case NR_HP_open:
@@ -91,6 +96,17 @@ int main(void)
 
 	cleanup();
 	return 0;
+}
+
+int check_iopl(void)
+{
+	struct kvm_regs regs;
+	struct kvm_sregs sregs;
+
+	ioctl(kvm.cpufd, KVM_GET_REGS, &regs);
+	ioctl(kvm.cpufd, KVM_GET_SREGS, &sregs);
+
+	return (sregs.cs.dpl <= ((regs.rflags >> 12) & 3));
 }
 
 void cleanup(void)
