@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <fcntl.h>
+#include <unistd.h>
 
 #include "kvmkvm.h"
 #include "kvm.h"
@@ -31,8 +31,15 @@ int main(void)
 
 void cleanup(void)
 {
+	// close descriptors
+	if (kvm.cpufd != -1) {
+		close(kvm.cpufd);
+	}
+	if (kvm.vmfd != -1) {
+		close(kvm.vmfd);
+	}
 	if (kvm.fd != -1) {
-		close_kvm();
+		close(kvm.fd);
 	}
 }
 

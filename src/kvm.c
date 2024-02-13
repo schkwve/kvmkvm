@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <fcntl.h>
-#include <unistd.h>
 #include <linux/kvm.h>
 #include <sys/ioctl.h>
 #include <sys/mman.h>
@@ -19,7 +18,7 @@ void kvm_create_cpu(void)
 	kvm.cpufd = ioctl(kvm.vmfd, KVM_CREATE_VCPU, 0);
 
 	// set up memory for the cpu
-	size_t vcpu_mmap_size = ioctl(kvm.fd, KVM_GET_VCPU_MMAP_SIZE, NULL);
+	// size_t vcpu_mmap_size = ioctl(kvm.fd, KVM_GET_VCPU_MMAP_SIZE, NULL);
 	// struct kvm_run *run = (struct kvm_run *)mmap(0, vcpu_mmap_size, PROT_READ | PROT_WRITE, MAP_SHARED, kvm.cpufd, 0);
 
 	// set up registers
@@ -68,9 +67,4 @@ int open_kvm(void)
 	}
 
 	return fd;
-}
-
-void close_kvm(void)
-{
-	close(kvm.fd);
 }
