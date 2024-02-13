@@ -4,7 +4,7 @@
 #include <linux/kvm.h>
 #include <sys/ioctl.h>
 
-#include "paging.h"
+#include "hypercall.h"
 #include "kvmkvm.h"
 #include "kvm.h"
 
@@ -37,7 +37,15 @@ int main(void)
 				kvm.is_running = 0;
 				break;
 			case KVM_EXIT_IO:
-				// TODO: check port/direction
+				if (kvm.kvm_run->io.port & HP_NR_MARK) {
+					switch (kvm.kvm_run->io.port) {
+						case NR_HP_open:
+							hp_handle_open();
+							break;
+						default:
+							fprintf(stderr, "[kvmkvm/info]: Unhandled I/O port: 0x%x\n", kvm.kvm_run->io.port);
+					}
+				}
 				putchar(*(((char *)kvm.kvm_run) + kvm.kvm_run->io.data_offset));
 				break;
 			case KVM_EXIT_FAIL_ENTRY:
