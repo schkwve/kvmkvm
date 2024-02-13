@@ -1,25 +1,15 @@
-TARGET := kvmkvm
-CFILES := $(shell find src -name "*.c")
-OBJ := $(CFILES:%.c=build/%.o)
-CFLAGS := -Wall -Wextra -Wpedantic
-DBG_CFLAGS :=
 
-ifdef KVM_DEBUG
-	CFLAGS += -DDEBUG
-	DBG_CFLAGS += -g
-endif
+.PHONY: all
+all: kvmkvm kernel
 
-all: $(TARGET)
+.PHONY: kvmkvm
+kvmkvm:
+	@$(MAKE) -C hypervis
 
-$(TARGET): $(OBJ)
-	$(CC) $(OBJ) $(DBG_CFLAGS) -o $@
+.PHONY: kernel
+kernel:
+	@$(MAKE) -C kernel
 
-build/%.o: %.c
-	@mkdir -p $(@D)
-	$(CC) $(CFLAGS) -c $< -o $@
-
-debug:
-	$(MAKE) KVM_DEBUG=1
-
+.PHONY:
 clean:
-	rm -rf build $(TARGET)
+	@rm -rf build bin

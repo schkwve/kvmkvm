@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <fcntl.h>
 #include <linux/kvm.h>
@@ -26,7 +27,9 @@ void kvm_create_cpu(void)
 	// set up registers
 	ioctl(kvm.cpufd, KVM_GET_REGS, &kvm.regs);
 	kvm.regs.rip = kvm.memuent;
-	kvm.regs.rsp = 0x200000;
+	kvm.regs.rsp = PS_LIMIT;
+	kvm.regs.rdi = PS_LIMIT;
+	kvm.regs.rsi = MEM_SIZE - kvm.regs.rdi;
 	kvm.regs.rflags = 0x2;
 	ioctl(kvm.cpufd, KVM_SET_REGS, &kvm.regs);
 
@@ -42,6 +45,7 @@ void kvm_create_memory(size_t memsize)
 {
 	kvm.memuent = 0x0;
 	kvm.mem = mmap(0, memsize, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+	kvm.memsz = memsize;
 	
 	kvm_copy_code_to_memory(kvm.mem, kvm.memuent, kvm.code, kvm.codesz);
 
@@ -54,6 +58,28 @@ void kvm_create_memory(size_t memsize)
 	};
 
 	ioctl(kvm.vmfd, KVM_SET_USER_MEMORY_REGION, &region);
+}
+
+void kvm_load_code(const char *filename, uint8_t **codep, size_t *sizep)
+{
+	FILE *kernel = fopen(filename, "rb");
+	if (kernel == NULL) {
+		die("Failed to open kernel");
+	}
+	fseek(kernel, 0, SEEK_END);
+	size_t size = ftell(kernel);
+	rewind(kernel);
+
+	uint8_t *code = (uint8_t *)malloc(size);
+	if (code == NULL) {
+		die("Couldn't allocate memory for kernel");
+	}
+
+	fread(code, 1, size, kernel);
+
+	fclose(kernel);
+	*codep = code;
+	*sizep = size;
 }
 
 void kvm_copy_code_to_memory(void *mem, int entry, uint8_t *code, size_t codesize)

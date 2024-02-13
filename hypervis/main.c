@@ -11,21 +11,25 @@
 
 struct kvm kvm = {0};
 
-int main(void)
+int main(int argc, char *argv[])
 {
 	kvm.fd = open_kvm();
 
 	create_kvm_vm(kvm.fd);
 
 	// load code and entry point
-	uint8_t code[] = "H\xB8\x41\x42\x43\x44\x31\x32\x33\nj\bY\xBA\x17\x02\x00\x00\xEEH\xC1\xE8\b\xE2\xF9\xF4";
-	kvm.code = code;
-	kvm.codesz = sizeof(code);
+	uint8_t *code;
+	size_t size;
+	kvm_load_code(argv[1], &code, &size);
 
-	// 1GB
+	if (size > MAX_KERNEL_SIZE) {
+		char *buf;
+		vsprintf(buf, "Kernel is too big! Maximum kernel size: %d bytes.", MAX_KERNEL_SIZE);
+		die(buf);
+	}
+
 	// TODO: make this configurable
-	const size_t memory_size = 0x40000000;
-	kvm_create_memory(memory_size);
+	kvm_create_memory(MEM_SIZE);
 
 	kvm_create_cpu();
 
