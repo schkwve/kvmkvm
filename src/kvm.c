@@ -58,7 +58,7 @@ void kvm_create_memory(size_t memsize)
 
 void kvm_copy_code_to_memory(void *mem, int entry, uint8_t *code, size_t codesize)
 {
-	memcpy(((void *)(size_t)mem + entry), code, codesize);
+	memcpy((void *)((size_t)mem + entry), code, codesize);
 }
 
 int open_kvm(void)
