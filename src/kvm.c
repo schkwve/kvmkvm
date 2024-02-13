@@ -18,8 +18,8 @@ void kvm_create_cpu(void)
 	kvm.cpufd = ioctl(kvm.vmfd, KVM_CREATE_VCPU, 0);
 
 	// set up memory for the cpu
-	// size_t vcpu_mmap_size = ioctl(kvm.fd, KVM_GET_VCPU_MMAP_SIZE, NULL);
-	// struct kvm_run *run = (struct kvm_run *)mmap(0, vcpu_mmap_size, PROT_READ | PROT_WRITE, MAP_SHARED, kvm.cpufd, 0);
+	size_t vcpu_mmap_size = ioctl(kvm.fd, KVM_GET_VCPU_MMAP_SIZE, NULL);
+	kvm.kvm_run = (struct kvm_run *)mmap(0, vcpu_mmap_size, PROT_READ | PROT_WRITE, MAP_SHARED, kvm.cpufd, 0);
 
 	// set up registers
 	struct kvm_regs regs;
