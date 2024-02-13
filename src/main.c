@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <linux/kvm.h>
+#include <sys/ioctl.h>
 
 #include "kvmkvm.h"
 #include "kvm.h"
@@ -24,6 +26,10 @@ int main(void)
 	kvm_create_memory(memory_size);
 
 	kvm_create_cpu();
+
+	for (;;) {
+		ioctl(kvm.cpufd, KVM_RUN, NULL);
+	}
 
 	cleanup();
 	return 0;
