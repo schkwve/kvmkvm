@@ -3,6 +3,7 @@
 #include <fcntl.h>
 
 #include "hypercall.h"
+#include "log.h"
 #include "kvmkvm.h"
 
 static struct fd_handle fd_map[MAX_FD + 1];
@@ -26,7 +27,7 @@ static void init_fd_map(void)
 
 void hp_handle_open(void)
 {
-	static int ret = 0;
+	static int ret = UNUSED;
 
 	if (kvm.kvm_run->io.direction == KVM_EXIT_IO_OUT) {
 		uint32_t offset = *(uint32_t *)((uint8_t *)kvm.kvm_run + kvm.kvm_run->io.data_offset);
@@ -53,6 +54,36 @@ void hp_handle_open(void)
 			}
 		}
 	} else {
-		*(uint32_t *)((uint8_t *)kvm.kvm_run + kvm.kvm_run->io.data_offset) = ret;
+		if (ret == UNUSED) {
+			kvmkvm_log(LOG_ERROR, "Hypercall failed");
+			return;
+		}
+		*(uint32_t*)((uint8_t*)kvm.kvm_run + kvm.kvm_run->io.data_offset) = ret;
+		ret = UNUSED;
 	}
 }
+
+void hp_handle_read(void)
+{
+}
+
+void hp_handle_write(void)
+{
+}
+
+void hp_handle_close(void)
+{
+}
+
+void hp_handle_lseek(void)
+{
+}
+
+void hp_handle_exit(void)
+{
+}
+
+void hp_handle_panic(void)
+{
+}
+

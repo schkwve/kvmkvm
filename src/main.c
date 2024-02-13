@@ -5,6 +5,7 @@
 #include <sys/ioctl.h>
 
 #include "hypercall.h"
+#include "log.h"
 #include "kvmkvm.h"
 #include "kvm.h"
 
@@ -33,7 +34,7 @@ int main(void)
 		ioctl(kvm.cpufd, KVM_RUN, NULL);
 		switch (kvm.kvm_run->exit_reason) {
 			case KVM_EXIT_HLT:
-				fprintf(stderr, "[kvmkvm/exit]: KVM_EXIT_HLT\n");
+				kvmkvm_log(LOG_EXIT, "KVM_EXIT_HLT\n");
 				kvm.is_running = 0;
 				break;
 			case KVM_EXIT_IO:
@@ -42,26 +43,44 @@ int main(void)
 						case NR_HP_open:
 							hp_handle_open();
 							break;
+						case NR_HP_read:
+							hp_handle_read();
+							break;
+						case NR_HP_write:
+							hp_handle_write();
+							break;
+						case NR_HP_close:
+							hp_handle_close();
+							break;
+						case NR_HP_lseek:
+							hp_handle_lseek();
+							break;
+						case NR_HP_exit:
+							hp_handle_exit();
+							break;
+						case NR_HP_panic:
+							hp_handle_panic();
+							break;
 						default:
-							fprintf(stderr, "[kvmkvm/info]: Unhandled I/O port: 0x%x\n", kvm.kvm_run->io.port);
+							kvmkvm_log(LOG_INFO, "Unhandled I/O port: 0x%x\n", kvm.kvm_run->io.port);
 					}
 				}
 				putchar(*(((char *)kvm.kvm_run) + kvm.kvm_run->io.data_offset));
 				break;
 			case KVM_EXIT_FAIL_ENTRY:
-				fprintf(stderr, "[kvmkvm/exit]: KVM_EXIT_FAIL_ENTRY (hardware_entry_failure_reason = 0x%llx)\n", kvm.kvm_run->fail_entry.hardware_entry_failure_reason);
+				kvmkvm_log(LOG_EXIT, "KVM_EXIT_FAIL_ENTRY (hardware_entry_failure_reason = 0x%llx)\n", kvm.kvm_run->fail_entry.hardware_entry_failure_reason);
 				kvm.is_running = 0;
 				break;
 			case KVM_EXIT_INTERNAL_ERROR:
-				fprintf(stderr, "[kvmkvm/exit]: KVM_EXIT_INTERNAL_ERROR (suberror = 0x%x)\n", kvm.kvm_run->internal.suberror);
+				kvmkvm_log(LOG_EXIT, "KVM_EXIT_INTERNAL_ERROR (suberror = 0x%x)\n", kvm.kvm_run->internal.suberror);
 				kvm.is_running = 0;
 				break;
 			case KVM_EXIT_SHUTDOWN:
-				fprintf(stderr, "[kvmkvm/exit]: KVM_EXIT_SHUTDOWN\n");
+				kvmkvm_log(LOG_EXIT, "KVM_EXIT_SHUTDOWN\n");
 				kvm.is_running = 0;
 				break;
 			default:
-				fprintf(stderr, "[kvmkvm/exit]: KVMKVM_UNKNOWN\n");
+				kvmkvm_log(LOG_EXIT, "KVMKVM_UNKNOWN\n");
 				kvm.is_running = 0;
 				break;
 		}
@@ -87,8 +106,8 @@ void cleanup(void)
 
 void die(const char *msg)
 {
-	fprintf(stderr, "[kvmkvm/error]: %s!\n", msg);
-	fprintf(stderr, "[kvmkvm/info]: Error not recoverable: exitting.\n");
+	kvmkvm_log(LOG_ERROR, "%s!\n", msg);
+	kvmkvm_log(LOG_INFO, "Error not recoverable, exitting.\n");
 
 	cleanup();
 	exit(EXIT_FAILURE);

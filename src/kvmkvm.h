@@ -3,6 +3,8 @@
 
 #include "kvm.h"
 
+#define UNUSED 0xffdead
+
 extern struct kvm kvm;
 
 void cleanup(void);

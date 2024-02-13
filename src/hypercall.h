@@ -19,5 +19,11 @@ struct fd_handle {
 };
 
 void hp_handle_open(void);
+void hp_handle_read(void);
+void hp_handle_write(void);
+void hp_handle_close(void);
+void hp_handle_lseek(void);
+void hp_handle_exit(void);
+void hp_handle_panic(void);
 
 #endif /* HYPERCALL_H */
