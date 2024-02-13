@@ -5,8 +5,10 @@
 #include <sys/ioctl.h>
 #include <sys/mman.h>
 
-#include "kvmkvm.h"
+#include "cpu.h"
+#include "paging.h"
 #include "kvm.h"
+#include "kvmkvm.h"
 
 void create_kvm_vm(int fd)
 {
@@ -22,18 +24,18 @@ void kvm_create_cpu(void)
 	kvm.kvm_run = (struct kvm_run *)mmap(0, vcpu_mmap_size, PROT_READ | PROT_WRITE, MAP_SHARED, kvm.cpufd, 0);
 
 	// set up registers
-	struct kvm_regs regs;
-	ioctl(kvm.cpufd, KVM_GET_REGS, &regs);
-	regs.rip = kvm.memuent;
-	regs.rsp = 0x200000;
-	regs.rflags = 0x2;
-	ioctl(kvm.cpufd, KVM_SET_REGS, &regs);
+	ioctl(kvm.cpufd, KVM_GET_REGS, &kvm.regs);
+	kvm.regs.rip = kvm.memuent;
+	kvm.regs.rsp = 0x200000;
+	kvm.regs.rflags = 0x2;
+	ioctl(kvm.cpufd, KVM_SET_REGS, &kvm.regs);
 
-	struct kvm_sregs sregs;
-	ioctl(kvm.cpufd, KVM_GET_SREGS, &sregs);
-	sregs.cs.base = 0;
-	sregs.cs.selector = 0;
-	ioctl(kvm.cpufd, KVM_SET_SREGS, &sregs);
+	ioctl(kvm.cpufd, KVM_GET_SREGS, &kvm.sregs);
+	kvm.sregs.cs.base = 0;
+	kvm.sregs.cs.selector = 0;
+	// paging_create_pt(kvm.mem, &kvm.sregs);
+	// cpu_setup_segregs(&kvm.sregs);
+	ioctl(kvm.cpufd, KVM_SET_SREGS, &kvm.sregs);
 }
 
 void kvm_create_memory(size_t memsize)

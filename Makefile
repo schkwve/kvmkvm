@@ -1,7 +1,7 @@
 TARGET := kvmkvm
 CFILES := $(shell find src -name "*.c")
 OBJ := $(CFILES:%.c=build/%.o)
-CFLAGS := -Wall -Wextra
+CFLAGS := -Wall -Wextra -Wpedantic
 DBG_CFLAGS :=
 
 ifdef KVM_DEBUG

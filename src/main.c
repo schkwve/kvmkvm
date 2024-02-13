@@ -16,7 +16,7 @@ int main(void)
 	create_kvm_vm(kvm.fd);
 
 	// load code and entry point
-	uint8_t code[] = "\xB0\x61\xBA\x17\x02\xEE\xB0\x0A\xEE\xF4";
+	uint8_t code[] = "\xB0\x61\xBA\x17\x02\xEE\xB0\n\xEE\xF4";
 	kvm.code = code;
 	kvm.codesz = sizeof(kvm.code);
 

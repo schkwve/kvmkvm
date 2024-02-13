@@ -2,6 +2,7 @@
 #define KVM_H
 
 #include <stdint.h>
+#include <stddef.h>
 #include <linux/kvm.h>
 
 struct kvm {
@@ -16,6 +17,9 @@ struct kvm {
 	size_t memsz;
 	int memuent;
 	void *mem;
+
+	struct kvm_regs regs;
+	struct kvm_sregs sregs;
 
 	struct kvm_run *kvm_run;
 
