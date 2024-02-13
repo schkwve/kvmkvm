@@ -16,7 +16,7 @@ void cpu_setup_segregs(struct kvm_sregs *sregs)
 		.db = 0,
 		.s = 1,
 		.l = 1,
-		.g = 1
+		.g = 1,
 	};
 
 	sregs->cs = seg;

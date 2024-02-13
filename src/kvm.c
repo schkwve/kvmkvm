@@ -33,8 +33,8 @@ void kvm_create_cpu(void)
 	ioctl(kvm.cpufd, KVM_GET_SREGS, &kvm.sregs);
 	kvm.sregs.cs.base = 0;
 	kvm.sregs.cs.selector = 0;
-	// paging_create_pt(kvm.mem, &kvm.sregs);
-	// cpu_setup_segregs(&kvm.sregs);
+	paging_create_pt(kvm.mem, &kvm.sregs);
+	cpu_setup_segregs(&kvm.sregs);
 	ioctl(kvm.cpufd, KVM_SET_SREGS, &kvm.sregs);
 }
 

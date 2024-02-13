@@ -1,7 +1,9 @@
 #include <stdint.h>
+#include <stdio.h>
 #include <linux/kvm.h>
 
 #include "paging.h"
+#include "kvm.h"
 #include "kvmkvm.h"
 
 void paging_create_pt(void *mem, struct kvm_sregs *sregs)
@@ -19,9 +21,16 @@ void paging_create_pt(void *mem, struct kvm_sregs *sregs)
 	pdpt[0] = PDE_ACCESS | PDE_RW | pd_addr;
 	pd[0] = PDE_ACCESS | PDE_RW | PDE_PRESENT;
 
-	sregs->cr3 = pml4_addr;
-	sregs->cr4 = CR4_PAE;
-	sregs->cr4 |= CR4_OSFXSR | CR4_OSXMMEXCPT;
-	sregs->cr0 = CR0_PE | CR0_MP | CR0_ET | CR0_NE | CR0_WP | CR0_AM | CR0_PG;
-	sregs->efer = EFER_LME | EFER_LMA;
+	kvm.sregs.cr3 = pml4_addr;
+	kvm.sregs.cr4 = CR4_PAE;
+	kvm.sregs.cr4 |= CR4_OSFXSR | CR4_OSXMMEXCPT;
+
+	// setting cr0 to this leaves the upper 32 bits set
+	// (0xffffffff80050033)
+	// i don't know what causes this, so I'll just leave this here
+	// before i fix this
+	// kvm.sregs.cr0 = CR0_PE | CR0_MP | CR0_ET | CR0_NE | CR0_WP | CR0_AM | CR0_PG;
+	kvm.sregs.cr0 = 0x80050033;
+
+	kvm.sregs.efer = EFER_LME | EFER_LMA;
 }

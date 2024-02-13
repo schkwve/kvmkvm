@@ -1,0 +1,13 @@
+CR0_PE=(1 << 0)
+CR0_MP=(1 << 1)
+CR0_EM=(1 << 2)
+CR0_TS=(1 << 3)
+CR0_ET=(1 << 4)
+CR0_NE=(1 << 5)
+CR0_WP=(1 << 16)
+CR0_AM=(1 << 18)
+CR0_NW=(1 << 29)
+CR0_CD=(1 << 30)
+CR0_PG=(1 << 31)
+
+print(hex(CR0_PE | CR0_MP | CR0_ET | CR0_NE | CR0_WP | CR0_AM | CR0_PG))

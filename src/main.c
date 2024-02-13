@@ -4,6 +4,7 @@
 #include <linux/kvm.h>
 #include <sys/ioctl.h>
 
+#include "paging.h"
 #include "kvmkvm.h"
 #include "kvm.h"
 
@@ -16,9 +17,9 @@ int main(void)
 	create_kvm_vm(kvm.fd);
 
 	// load code and entry point
-	uint8_t code[] = "\xB0\x61\xBA\x17\x02\xEE\xB0\n\xEE\xF4";
+	uint8_t code[] = "H\xB8\x41\x42\x43\x44\x31\x32\x33\nj\bY\xBA\x17\x02\x00\x00\xEEH\xC1\xE8\b\xE2\xF9\xF4";
 	kvm.code = code;
-	kvm.codesz = sizeof(kvm.code);
+	kvm.codesz = sizeof(code);
 
 	// 1GB
 	// TODO: make this configurable
