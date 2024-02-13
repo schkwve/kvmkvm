@@ -44,10 +44,13 @@ int main(void)
 							hp_handle_open();
 							break;
 						case NR_HP_read:
-							hp_handle_read();
+							hp_handle_readwrite(read);
 							break;
 						case NR_HP_write:
-							hp_handle_write();
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wincompatible-pointer-types"
+							hp_handle_readwrite(write);
+#pragma GCC diagnostic pop
 							break;
 						case NR_HP_close:
 							hp_handle_close();
